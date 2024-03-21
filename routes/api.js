@@ -3,6 +3,12 @@ const router = express.Router();
 
 const Distributors = require('../models/distributors');
 const Fruits = require('../models/fruits');
+const Upload = require('../config/common/upload');
+const Users = require('../models/users');
+const Transporter = require('../config/common/mail');
+const JWT = require('jsonwebtoken');
+const SECRETKEY = "DuyDuc"
+
 
 router.post('/add-distributor', async (req, res) => {
     try {
@@ -61,6 +67,7 @@ router.post('/add-fruit', async (req, res) => {
         console.log(error);
     }
 })
+
 
 router.get('/get-list-friut', async (req, res) => {
     try {
@@ -171,5 +178,132 @@ router.put('/update-fruit-by-id/:id', async(req, res) => {
         console.log(error);
     }
 })
+
+router.delete('/destroy-fruit-by-id/:id', async(req, res) => {
+    try {
+        const {id} = req.params
+        const result = await Fruits.findByIdAndDelete(id);
+        if(result) {
+            res.json({
+                "status": 200,
+                "messenger": "Xóa thành công",
+                "data": result
+            }) 
+        } else {
+            res.json({
+                "status": 400,
+                "messenger": "Lỗi, xóa không thành công",
+                "data": []
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+router.post('/add-fruit-with-file-image', Upload.array('image', 5), async(req, res) => {
+    try {
+        const data = req.body; // lấy dữ liệu từ body
+        const {files} = req
+        const urlsImage = files.map((file) => `${req.protocol}://${req.get("host")}/uploads/${file.filename}`)
+        const newfruit = new Fruits({
+            name : data.name,
+            quantity: data.quantity,
+            price: data.price,
+            status: data.status,
+            image: urlsImage,
+            description: data.description,
+            id_distributor: data.id_distributor
+        });
+
+        const result = await newfruit.save(); // thêm vào data
+        if(result) {
+            res.json({
+                "status": 200,
+                "messenger": "Thêm thành công",
+                "data": result
+            })
+        } else {
+            res.json({
+                "status": 400,
+                "messenger": "Lỗi, thêm không thành công",
+                "data": []
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}) 
+
+router.post('/register-send-email',Upload.single('avatar'),async(req,res) =>{
+    try {
+        const data = req.body;
+        const {file} = req
+        const newUser = Users({
+          username: data.username, 
+          password : data.password,
+          email: data.email, 
+          name: data.name,
+          avatar:`${req.protocol}://${req.get("host")}/uploads/${file.filename}`, 
+          available: data.available
+        })
+        const result = await newUser.save()
+        if(result)
+        {   //Gửi mail
+            const mailOptions = {
+                from: "dinhnt24@fpt.edu.vn", //email gửi đi
+                to: result.email, // email nhận
+                subject: "Đăng ký thành công", //subject
+                text: "Cảm ơn bạn đã đăng ký", // nội dung mail
+              };
+            // Nếu thêm thành công result !null trả về dữ liệu
+            await Transporter.sendMail(mailOptions); // gửi mail
+            res.json({
+                "status" : 200,
+                "messenger" : "Thêm thành công",
+                "data" : result
+            })
+        }else
+        {// Nếu thêm không thành công result null, thông báo không thành công
+            res.json({
+                "status" : 400 ,
+                "messenger" : "Lỗi, thêm không thành công",
+                "data" : []
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+router.post('/login',async (req,res)=>{
+    try {
+        const {username,password} = req.body;
+        const user = await Users.findOne({username,password})
+        if(user)
+        {   
+            const token = JWT.sign({id: user._id},SECRETKEY,{expiresIn: '1h'});
+            const refreshToken = JWT.sign({id: user._id},SECRETKEY,{expiresIn: '1d'})
+            res.json({
+                "status" : 200,
+                "messenger" : "Đăng nhâp thành công",
+                "data" : user,
+                "token" : token,
+                "refreshToken" : refreshToken
+            })
+        }else
+        {
+            // Nếu thêm không thành công result null, thông báo không thành công
+            res.json({
+                "status" : 400 ,
+                "messenger" : "Lỗi, đăng nhập không thành công",
+                "data" : []
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+})
+
 
 module.exports = router
