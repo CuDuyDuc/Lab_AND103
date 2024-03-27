@@ -348,7 +348,7 @@ router.get('/search-distributors', async(req, res) => {
     }
 })
 
-router.delete('/delete-distributors/{id}', async(req, res) => {
+router.delete('/delete-distributors', async(req, res) => {
     try {
         const {id} = req.params
         const result = await Distributors.findByIdAndDelete(id);
@@ -370,7 +370,7 @@ router.delete('/delete-distributors/{id}', async(req, res) => {
     }
 })
 
-router.put('/update-distributors/{id}', async(req, res) => {
+router.put('/update-distributors', async(req, res) => {
     try {
         const {id} = req.params
         const data = req.body
