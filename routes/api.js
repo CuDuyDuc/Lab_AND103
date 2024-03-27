@@ -326,7 +326,7 @@ router.get('/get-list-distributor', async (req, res) => {
     }
 })
 
-router.get('/search-distributor', async(req, res) => {
+router.get('/search-distributors', async(req, res) => {
     try {
         const key = req.query.key;
         const data = await Distributors.find({name: {"$regex" : key, "$options": "i"}}).sort({createdAt: -1});
@@ -348,7 +348,7 @@ router.get('/search-distributor', async(req, res) => {
     }
 })
 
-router.delete('/delete-distributor-by-id', async(req, res) => {
+router.delete('/delete-distributors/{id}', async(req, res) => {
     try {
         const {id} = req.params
         const result = await Distributors.findByIdAndDelete(id);
@@ -370,7 +370,7 @@ router.delete('/delete-distributor-by-id', async(req, res) => {
     }
 })
 
-router.put('/update-distributor-by-id/:id', async(req, res) => {
+router.put('/update-distributors/{id}', async(req, res) => {
     try {
         const {id} = req.params
         const data = req.body
