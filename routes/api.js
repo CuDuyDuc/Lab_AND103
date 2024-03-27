@@ -305,5 +305,26 @@ router.post('/login',async (req,res)=>{
     }
 })
 
+router.get('/get-list-distributor', async (req, res) => {
+    try {
+        const data = await Distributors.find().sort({createdAt: -1});
+        if(data) {
+            res.json({
+                "status": 200,
+                "messenger": "thành công",
+                "data": data
+            })
+        } else {
+            res.json({
+                "status": 400,
+                "messenger": "Lỗi, không thành công",
+                "data": []
+            })
+        }
+    } catch (error) {
+       console.log(error) 
+    }
+})
+
 
 module.exports = router
