@@ -326,5 +326,70 @@ router.get('/get-list-distributor', async (req, res) => {
     }
 })
 
+router.get('/search-distributor', async(req, res) => {
+    try {
+        const key = req.query.key;
+        const data = await Distributors.find({name: {"$regex" : key, "$options": "i"}}).sort({createdAt: -1});
+        if(data) {
+            res.json({
+                "status": 200,
+                "messenger": "thành công",
+                "data": data
+            })
+        } else {
+            res.json({
+                "status": 400,
+                "messenger": "Lỗi, không thành công",
+                "data": []
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+})
 
+router.delete('/delete-distributor-by-id', async(req, res) => {
+    try {
+        const {id} = req.params
+        const result = await Distributors.findByIdAndDelete(id);
+        if(result) {
+            res.json({
+                "status": 200,
+                "messenger": "Xóa thành công",
+                "data": data
+            })
+        } else {
+            res.json({
+                "status": 400,
+                "messenger": "Lỗi,xóa không thành công",
+                "data": []
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+router.put('/update-distributor-by-id/:id', async(req, res) => {
+    try {
+        const {id} = req.params
+        const data = req.body
+        const result = await Distributors.findByIdAndUpdate(id, {name : data.name})
+        if(result) {
+            res.json({
+                "status": 200,
+                "messenger": "Thêm thành công",
+                "data": result
+            })
+        } else {
+            res.json({
+                "status": 400,
+                "messenger": "Lỗi,thêm không thành công",
+                "data": null
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+})
 module.exports = router
