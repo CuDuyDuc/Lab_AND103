@@ -326,66 +326,65 @@ router.get('/get-list-distributor', async (req, res) => {
     }
 })
 
-router.get('/search-distributor', async(req, res) => {
+router.get('/search-distributors',async(req,res)=>{
     try {
         const key = req.query.key;
-        const data = await Distributors.find({name: {"$regex" : key, "$options": "i"}}).sort({createdAt: -1});
-        if(data) {
+
+        const data = await Distributors.find({name:{"$regex":key, "$options":"i"}}).sort({createdAt:-1});
+        if(data){
             res.json({
-                "status": 200,
-                "messenger": "thành công",
-                "data": data
+                "status":200,
+                "messenger":"Thành công",
+                "data":data
             })
-        } else {
+        }else{
             res.json({
-                "status": 400,
-                "messenger": "Lỗi, không thành công",
-                "data": []
+                "status":400,
+                "messenger":"Không thành công",
+                "data":[]
             })
         }
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
 })
-
-router.delete('/delete-distributor-by-id/:id', async(req, res) => {
+router.delete('/delete-distributors/:id', async (req, res) => {
     try {
-        const {id} = req.params
+        const { id } = req.params
         const result = await Distributors.findByIdAndDelete(id);
-        if(result) {
+        if (result) {
             res.json({
                 "status": 200,
                 "messenger": "Xóa thành công",
-                "data": data
-            })
-        } else {
-            res.json({
-                "status": 400,
-                "messenger": "Lỗi,xóa không thành công",
-                "data": []
-            })
-        }
-    } catch (error) {
-        console.log(error);
-    }
-})
-
-router.put('/update-distributor-by-id/:id', async(req, res) => {
-    try {
-        const {id} = req.params
-        const data = req.body
-        const result = await Distributors.findByIdAndUpdate(id, {name : data.name})
-        if(result) {
-            res.json({
-                "status": 200,
-                "messenger": "Thêm thành công",
                 "data": result
             })
         } else {
             res.json({
                 "status": 400,
-                "messenger": "Lỗi,thêm không thành công",
-                "data": null
+                "messenger": "Lỗi, xóa không thành công",
+                "data": []
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+})
+router.put('/update-distributors/:id', async(req,res)=>{
+    try {
+        const {id}=req.params;
+        const data = req.body;
+        const result = await Distributors.findByIdAndUpdate(id,{name:data.name});
+        if(result){
+            res.json({
+                "status": 200,
+                "messenger": "Sửa thành công",
+                "data": result
+            })
+        }else{
+            res.json({
+                "status": 400,
+                "messenger": "Lỗi, sửa không thành công",
+                "data": []
             })
         }
     } catch (error) {
